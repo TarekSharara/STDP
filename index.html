@@ -47,6 +47,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 h1{font-family:var(--f-disp); font-weight:700; font-size:clamp(28px,4vw,42px); line-height:1.15; margin:2px 0 4px; text-wrap:balance}
 .lead{margin:0; color:var(--muted); max-width:62ch}
 .hdr-side{display:flex; flex-direction:column; gap:10px; align-items:flex-end}
+.hdr-top{display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; width:100%}
+.hdr-top>div:first-child{flex:1 1 520px; min-width:0}
+.aibox{flex:0 1 auto; border:2px solid #E0362C; color:#E0362C; padding:22px 18px; text-align:center; font-weight:700; line-height:1.7; font-size:clamp(14px,1.6vw,17px); font-family:Arial,"Segoe UI",sans-serif; background:transparent; margin-inline:auto}
+.aibox[hidden]{display:none}
 .langbtn{border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:6px 16px; font-weight:700; cursor:pointer}
 .phasechips{display:flex; gap:6px; flex-wrap:wrap}
 .pchip{border:1px solid var(--line); background:var(--panel); color:var(--muted); border-radius:999px; padding:4px 12px; font-size:13px; cursor:pointer}
@@ -76,11 +80,11 @@ nav.tabs button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(
 .steptitle{font-family:var(--f-disp); font-size:22px; font-weight:700; margin:6px 0 10px; line-height:1.35}
 .cmdbox{background:var(--navy); color:var(--navy-ink); border-radius:10px; padding:10px 14px; margin-bottom:10px}
 .cmdbox .cap{font-size:12px; opacity:.8; margin-bottom:4px}
-.cmdrow{display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:5px 0; border-top:1px solid rgba(255,255,255,.12)}
+.cmdrow{display:grid; grid-template-columns:1fr; gap:2px 12px; padding:6px 0; border-top:1px solid rgba(255,255,255,.12)}
 .cmdrow:first-of-type{border-top:0}
 .cmdrow .c{font-family:var(--f-mono); font-weight:600; font-size:14px; direction:ltr; text-align:start; overflow-wrap:anywhere}
 body[dir="rtl"] .cmdrow .c{text-align:right}
-.cmdrow .at{font-family:var(--f-mono); font-size:12.5px; opacity:.85; direction:ltr}
+.cmdrow .at{font-size:12.5px; opacity:.85; unicode-bidi:plaintext; text-align:start}
 .desc{margin:0 0 10px}
 .chip{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; font-size:12px; font-weight:700; border:1px solid rgba(0,0,0,.25); vertical-align:-5px; font-family:var(--f-mono)}
 .ref{font-size:12px; color:var(--muted); font-family:var(--f-mono)}
@@ -275,11 +279,14 @@ body[dir="rtl"] .resrow .boardcard{order:0}
 <body dir="rtl">
 <div class="wrap">
   <header class="hdr">
+    <div class="hdr-top">
     <div>
       <p class="eyebrow" id="eyebrow"></p>
       <h1 id="h1"></h1>
       <p class="lead" id="lead"></p>
       <p class="byline" id="byline"></p>
+    </div>
+    <div class="aibox" id="aivoice" hidden></div>
     </div>
     <div class="hdr-side">
       <div class="row"><div class="seg evseg" role="group" aria-label="Event"><button id="evm" aria-pressed="true"></button><button id="evw" aria-pressed="false"></button></div><button class="langbtn" id="sndbtn" aria-pressed="true"></button><button class="langbtn" id="fsbtn" hidden=""></button><button class="langbtn" id="langbtn"></button></div>
@@ -340,7 +347,9 @@ body[dir="rtl"] .resrow .boardcard{order:0}
           <div class="row"><span class="small" id="speedl"></span><div class="seg" role="group"><button id="sp1" aria-pressed="true">×1</button><button id="sp2" aria-pressed="false">×2</button><button id="sp4" aria-pressed="false">×4</button><button id="sp8" aria-pressed="false">×8</button><button id="sp16" aria-pressed="false">×16</button></div>
             <label class="row small" style="margin-inline-start:auto"><input type="checkbox" id="quizme"><span id="quizmel"></span></label></div>
           <div class="row"><button class="btn" id="bvoice"></button><select class="grow" id="vmode" aria-label="Narration"></select></div>
-          <div class="row"><select class="grow" id="vrate" aria-label="Rate"></select><select class="grow" id="vvoice" aria-label="Voice"></select></div>
+          <div class="row"><select class="grow" id="vrate" aria-label="Rate"></select></div>
+          <div class="row" style="align-items:center"><label class="small" for="vvoice" id="vvoicel" style="min-width:7.5em"></label><select class="grow" id="vvoice" aria-label="English voice"></select><button class="btn" id="vtesten" type="button">▶</button></div>
+          <div class="row" style="align-items:center"><label class="small" for="vvoicear" id="vvoicearl" style="min-width:7.5em"></label><select class="grow" id="vvoicear" aria-label="Arabic voice"></select><button class="btn" id="vtestar" type="button">▶</button></div>
           <div class="row"><select class="grow" id="scen" aria-label="Scenario"></select><button class="btn" id="bstart"></button></div>
           <p class="small" id="scennote" style="margin:0"></p>
           <p class="small kbd" id="kbdhint" style="margin:0"></p>
@@ -408,7 +417,7 @@ const STN=st=>({ar:`المرحلة ${["الأولى","الثانية","الثا�
 /* ================= UI strings ================= */
 const T={
 ar:{eyebrow:"المسدس الموحد 25م · التأهيل · 3 مراحل × 20 طلقة (150، 20، 10 ثوانٍ) · أعلى 8 إلى النهائي",h1:{m:"محاكي تأهيل المسدس الموحد 25م رجال",w:"محاكي تأهيل المسدس الموحد 25م سيدات"},ev:["رجال","سيدات"],
- lead:"تابع قطار التأهيل خطوة بخطوة: 12 لاعباً يرمون معاً بنفس الأوامر. مجموعة اختبار واحدة (5 طلقات في 150 ثانية)، ثم ثلاث مراحل: 4 مجموعات في 150 ثانية، و4 في 20 ثانية، و4 في 10 ثوانٍ. لكل مجموعة: زمن المجموعة، LOAD، دقيقة، ATTENTION، أحمر 7 ثوانٍ ثم أخضر. الدرجات بالدائرة الكاملة، الترتيب وفض التعادل وأعلى 8 إلى النهائي.",
+ lead:"تابع قطار التأهيل خطوة بخطوة: 12 لاعباً يرمون معاً بنفس الأوامر. مجموعة اختبار واحدة (5 طلقات في 150 ثانية)، ثم ثلاث مراحل: 4 مجموعات في 150 ثانية، و4 في 20 ثانية، و4 في 10 ثوانٍ. لكل مجموعة: زمن المجموعة، LOAD، دقيقة، ATTENTION، ثم يضاء الضوء الأحمر لمدة 7 ثوانٍ ±0.1 ثم يضاء الضوء الأخضر لمدة 150 أو 20 أو 10 ثوانٍ +0.1. الدرجات بالدائرة الكاملة، الترتيب وفض التعادل وأعلى 8 إلى النهائي.",
  snd1:"🔊 الصوت: يعمل",snd0:"🔇 الصوت: مغلق",fs:"⛶ ملء الشاشة",fsx:"⛶ خروج من ملء الشاشة",anncap:"ملاحظة",
  kbd:"لوحة المفاتيح: <kbd>←</kbd> التالي · <kbd>→</kbd> السابق · <kbd>مسافة</kbd> تشغيل/إيقاف · <kbd>K</kbd> إيقاف مؤقت · <kbd>T</kbd> تدريب رئيس ضباط الميدان · <kbd>F</kbd> ملء الشاشة · <kbd>L</kbd> اللغة · <kbd>M</kbd> الصوت · <kbd>Home</kbd> من البداية",
  by:"إعداد: الحكم الدولي طارق شرارة",byf:"© T.SHARARA",
@@ -416,7 +425,7 @@ ar:{eyebrow:"المسدس الموحد 25م · التأهيل · 3 مراحل ×
  step:"الخطوة",of:"من",cmdcap:"أوامر رئيس ضباط الميدان / ضابط الميدان وتوقيتها",nocmd:"لا يوجد أمر في هذه الخطوة",train:"⏱ تدريب رئيس ضباط الميدان بالزمن الحقيقي من هنا",
  sayAt:"عند الصفر قل:",sayNow:"قل الآن",wait:"انتظر",pause:"إيقاف مؤقت",resume:"استئناف",nextStage:"المرحلة التالية",close:"إغلاق",auto:"أكمل التالي تلقائياً",beep:"تنبيه صوتي",
  prev:"→ السابق",next:"التالي ←",play:"▶ تشغيل",stop:"■ إيقاف",speed:"السرعة",quizme:"اختبرني قبل كل خطوة",
- voiceOn:"🔊 تشغيل الشرح الصوتي",voiceOff:"🔇 إيقاف الشرح الصوتي",vmode:["الشرح والأوامر","الأوامر فقط"],vrate:["قراءة عادية","قراءة بطيئة","قراءة سريعة"],novoice:"الصوت الافتراضي للجهاز",
+ voiceOn:"🔊 تشغيل الشرح الصوتي",voiceOff:"🔇 إيقاف الشرح الصوتي",vmode:["الشرح والأوامر","الأوامر فقط"],vrate:["قراءة عادية","قراءة بطيئة","قراءة سريعة"],novoice:"الصوت الافتراضي للجهاز",vEnL:"الصوت الإنجليزي (الأوامر)",vArL:"الصوت العربي (الشرح)",
  scen:["سيناريو نتائج جديد…","تعادل على المركز الثامن (القاعدة 6.15.1)","مخالفة: طلقة قبل الأمر LOAD","مخالفة: تعمير أكثر من 5 طلقات","مخالفة: طلقة بعد LOAD وقبل بدء المجموعة","مخالفة: 6 إصابات على الهدف","مخالفة: طلقات اختبار زائدة","مخالفة: طلقة بعد انتهاء زمن مجموعة 150 ث","مخالفة: وضع الاستعداد (مرتان في 20 و10 ث)","ادعاء أمر ميدان غير صحيح (مرفوض)","ادعاء مخالفة زمنية (مرفوض)","ادعاء إزعاج (مرفوض، المجموعة لم تكتمل)","عطل مسموح به (AM) · نموذج STDP","عطل غير مسموح به (NAM)","طلقة اختبار على هدف لاعب آخر","انقطاع أكثر من 15 دقيقة","مسدس مكسور: 15 دقيقة للإصلاح","كل الحالات في قطار واحد"],fromStart:"من البداية",
  usenames:"استخدام أسماء اللاعبين",nameshelp:"اكتب اسم العائلة لكل لاعب حسب نقطة رميه (1–12).",
  pasteph:"أو الصق القائمة هنا، اسم في كل سطر بترتيب 1 إلى 12:\nMORENO ESP\nFARID EGY\n…",fill:"تعبئة من القائمة",clearn:"مسح الأسماء",famph:"اسم العائلة",nocph:"الدولة",
@@ -438,7 +447,7 @@ en:{eyebrow:"25m Standard Pistol · Qualification · 3 stages × 20 shots (150, 
  step:"Step",of:"of",cmdcap:"CRO / Range Officer commands and timing",nocmd:"No command in this step",train:"⏱ Train as CRO in real time from here",
  sayAt:"At zero, say:",sayNow:"Say now",wait:"Wait",pause:"Pause",resume:"Resume",nextStage:"Next stage",close:"Close",auto:"Continue automatically",beep:"Sound cue",
  prev:"← Back",next:"Next →",play:"▶ Play",stop:"■ Stop",speed:"Speed",quizme:"Quiz me before each step",
- voiceOn:"🔊 Play narration",voiceOff:"🔇 Stop narration",vmode:["Explanation and commands","Commands only"],vrate:["Normal speed","Slow","Fast"],novoice:"Device default voice",
+ voiceOn:"🔊 Play narration",voiceOff:"🔇 Stop narration",vmode:["Explanation and commands","Commands only"],vrate:["Normal speed","Slow","Fast"],novoice:"Device default voice",vEnL:"English voice (commands)",vArL:"Arabic voice (narration)",
  scen:["New random results…","Tie for 8th place (Rule 6.15.1)","Irregularity: shot before LOAD","Irregularity: more than 5 cartridges loaded","Irregularity: shot after LOAD, before the series starts","Irregularity: 6 hits on the target","Irregularity: too many sighting shots","Irregularity: shot after the 150 s series time","Irregularity: READY position (twice, 20 s and 10 s)","Incorrect range command claim (not justified)","Timing irregularity claim (not justified)","Disturbance claim (not justified, series unfinished)","ALLOWABLE malfunction (AM) · Form STDP","NON-ALLOWABLE malfunction (NAM)","Sighting shot on another athlete's target","Interruption over 15 minutes","Broken pistol: 15 minutes to repair","All cases in one relay"],fromStart:"From the start",
  usenames:"Use athletes' names",nameshelp:"Enter each athlete's family name by firing point (1–12).",
  pasteph:"Or paste the list here, one name per line for 1 to 12:\nMORENO ESP\nFARID EGY\n…",fill:"Fill from list",clearn:"Clear names",famph:"Family name",nocph:"NOC",
@@ -506,21 +515,25 @@ function simulate(plan,names,quick){
     o.board=board; o.res=res; o.started=started; o.final=!!o.final; steps.push(o);
   }
   const fmtA=s=>s>=60?Math.floor(s/60)+":"+String(Math.round(s%60*10)/10).padStart(2,"0"):(Math.round(s*10)/10)+"s";
-  const cmdsFrom=stages=>{let acc=0; return stages.filter(s=>{acc+=s.secs; s._at=acc; return !!s.say;}).map(s=>({c:s.say,at:s.at||("+"+fmtA(s._at))}));};
+  const durW=sec=>{ const r=Math.round(sec*10)/10, m=Math.floor(r/60), x=Math.round((r-m*60)*10)/10;
+    const mA=m===1?"دقيقة":m===2?"دقيقتين":m<=10?m+" دقائق":m+" دقيقة", sA=x===1?"ثانية":x===2?"ثانيتين":(x>=3&&x<=10&&x%1===0)?x+" ثوانٍ":x+" ثانية";
+    const mE=m+(m===1?" minute":" minutes"), sE=x+(x===1?" second":" seconds");
+    const ar=m&&x?mA+" و"+sA:m?mA:sA, en=m&&x?mE+" "+sE:m?mE:sE; return {ar:"بعد "+ar,en:"after "+en}; };
+  const cmdsFrom=stages=>{let acc=0; return stages.filter(s=>{acc+=s.secs; s._at=acc; return !!s.say;}).map(s=>({c:s.say,at:s.at||durW(s._at)}));};
   const irrStep=(ph,p,color,title,desc,ref)=>push({ph,tag:{ar:"حالة",en:"Case"},title,desc,ref,pos:pm(()=>"fp"),flag:{p,color},
     stages:[{lbl:{ar:"قرار ضابط الميدان / لجنة الحكام",en:"Range Officer / Jury decision"},secs:8,say:null,hint:{ar:"يُسجّل في نموذج IR أو نموذج STDP عند الحاجة.",en:"Recorded on Form IR or Form STDP when needed."}}],cmds:[]});
   /* one series: series time · LOAD · 1 min · ATTENTION · red 7 s · green T · UNLOAD (· pause ≥ 1 min before) */
   const seriesStages=(T,pre)=>[ ...(pre?[{lbl:{ar:"توقف (دقيقة على الأقل بعد UNLOAD)",en:"Pause (at least 1 minute after UNLOAD)"},secs:60,say:null,hint:{ar:"لا يُعطى LOAD قبل مرور دقيقة على الأقل من UNLOAD السابق.",en:"LOAD is not given until at least one minute after the previous UNLOAD."}}]:[]),
     {lbl:{ar:"إعلان زمن المجموعة",en:"Call the series time"},secs:3,say:SNAME[T],hint:{ar:"قبل LOAD يعلن ضابط الميدان زمن المجموعة أو يرفع لوحة مرقمة واضحة.",en:"Before LOAD the Range Officer calls the series time or shows a clearly visible numbered sign."}},
     {lbl:{ar:"التعمير",en:"Load"},secs:2,say:"LOAD",hint:{ar:"خزنة واحدة بخمس طلقات كحد أقصى؛ يستعد اللاعب فوراً خلال دقيقة.",en:"One magazine, no more than five cartridges; the athlete prepares immediately within one minute."}},
-    {lbl:{ar:"دقيقة للاستعداد",en:"One minute to prepare"},secs:60,say:"ATTENTION",hint:{ar:"تبدأ المجموعة لحظة إضاءة الأحمر بعد ATTENTION؛ كل طلقة بعدها طلقة مباراة.",en:"The series starts the moment the red light comes on after ATTENTION; every shot after that is a MATCH shot."}},
-    {lbl:{ar:T===150?"أحمر 7 ث ±0.1":"أحمر 7 ث ±0.1 · وضع الاستعداد",en:T===150?"Red 7 s ±0.1":"Red 7 s ±0.1 · READY position"},secs:7,say:null,light:"red",hint:T===150?{ar:"لا يُطلب وضع الاستعداد في مجموعات 150 ثانية.",en:"No READY position in the 150 s series."}:{ar:"الذراع لأسفل بزاوية لا تزيد عن 45°، ولا يُسند المسدس على الطاولة.",en:"Arm down at no more than 45°; the pistol must not rest on the bench."}},
-    {lbl:{ar:`أخضر ${T} ث +0.1 · 5 طلقات`,en:`Green ${T} s +0.1 · 5 shots`},secs:T+0.1,say:null,light:"green",hint:{ar:"يبدأ التوقيت عند إضاءة الأخضر وينتهي عند إضاءة الأحمر.",en:"Timing starts when the green light comes on and stops when the red light comes on."}},
+    {lbl:{ar:"دقيقة للاستعداد",en:"One minute to prepare"},secs:60,say:"ATTENTION",hint:{ar:"تبدأ المجموعة لحظة إضاءة الضوء الأحمر بعد ATTENTION؛ كل طلقة بعدها طلقة مباراة.",en:"The series starts the moment the red light comes on after ATTENTION; every shot after that is a MATCH shot."}},
+    {lbl:{ar:T===150?"الضوء الأحمر لمدة 7 ثوانٍ ±0.1":"الضوء الأحمر لمدة 7 ثوانٍ ±0.1 · وضع الاستعداد",en:T===150?"Red 7 s ±0.1":"Red 7 s ±0.1 · READY position"},secs:7,say:null,light:"red",hint:T===150?{ar:"لا يُطلب وضع الاستعداد في مجموعات 150 ثانية.",en:"No READY position in the 150 s series."}:{ar:"الذراع لأسفل بزاوية لا تزيد عن 45°، ولا يُسند المسدس على الطاولة.",en:"Arm down at no more than 45°; the pistol must not rest on the bench."}},
+    {lbl:{ar:`الضوء الأخضر لمدة ${T} ${T===10?"ثوانٍ":"ثانية"} +0.1 · 5 طلقات`,en:`Green ${T} s +0.1 · 5 shots`},secs:T+0.1,say:null,light:"green",hint:{ar:"يبدأ التوقيت عند إضاءة الضوء الأخضر وينتهي عند إضاءة الضوء الأحمر.",en:"Timing starts when the green light comes on and stops when the red light comes on."}},
     {lbl:{ar:"بعد المجموعة",en:"After the series"},secs:3,say:"UNLOAD",hint:{ar:"تفريغ المسدس وإدخال علم الأمان فوراً.",en:"Unload and insert the safety flag immediately."}}];
 
   /* ---- before the match ---- */
-  {const stg=[{lbl:{ar:"النداء إلى الخط",en:"Call to the line"},secs:5,say:"ATHLETES TO THE LINE",at:"−13:00",hint:{ar:"قبل البداية بـ 13 دقيقة، وبعد انتهاء أي قطار سابق.",en:"13 minutes before the start, after any previous relay has finished."}}];
-   push({ph:0,tag:{ar:"قبل المباراة",en:"Before the match"},title:{ar:"النداء إلى الخط (−13:00)",en:"Call to the line (−13:00)"},
+  {const stg=[{lbl:{ar:"النداء إلى الخط",en:"Call to the line"},secs:5,say:"ATHLETES TO THE LINE",at:{ar:"قبل وقت البداية بـ 13 دقيقة",en:"13 minutes before the start time"},hint:{ar:"قبل البداية بـ 13 دقيقة، وبعد انتهاء أي قطار سابق.",en:"13 minutes before the start, after any previous relay has finished."}}];
+   push({ph:0,tag:{ar:"قبل المباراة",en:"Before the match"},title:{ar:"النداء إلى الخط: قبل وقت البداية بـ 13 دقيقة",en:"Call to the line: 13 minutes before the start time"},
     desc:{ar:"يحضر اللاعبون إلى قسم الرمي وينتظرون النداء. قبل البداية بـ 13 دقيقة يستدعيهم رئيس ضباط الميدان إلى الخط. يجوز إخراج المسدسات من الصناديق وتناولها مع إبقاء أعلام الأمان مُدخلة، وتمارين الحمل والتصويب مسموحة.",en:"Athletes report to their range section and wait. 13 minutes before the start the CRO calls them to the line. They may unbox and handle their pistols with safety flags in; holding and aiming exercises are allowed."},
     ref:"6.11.9.9 · 8.7.6.1 a, b",pos:pm(()=>"fp"),equip:true,walk:true,stages:stg,cmds:cmdsFrom(stg)});}
   push({ph:0,tag:{ar:"قبل المباراة",en:"Before the match"},title:{ar:"فحوصات لجنة الحكام وضباط الميدان",en:"Jury and Range Officer checks"},
@@ -565,8 +578,8 @@ function simulate(plan,names,quick){
       const stg=seriesStages(T,true);
       const tag={ar:`${T} ث · ${i}`,en:`${T} s · ${i}`};
       push({ph,tag,title:{ar:`${SN.ar} · المجموعة ${i}: 5 طلقات في ${T} ${T===10?"ثوانٍ":"ثانية"}`,en:`${SN.en} · series ${i}: 5 shots in ${T} seconds`},
-        desc:T===150?{ar:"يعلن ضابط الميدان زمن المجموعة، ثم LOAD، وبعد دقيقة ATTENTION: يُضاء الأحمر (تبدأ المجموعة)، وبعد 7 ثوانٍ ±0.1 يُضاء الأخضر لمدة 150 ثانية +0.1. لا يُطلب وضع الاستعداد في مجموعات 150 ثانية.",en:"The Range Officer calls the series time, then LOAD; after one minute ATTENTION: the red lights come on (the series starts), and after 7 s ±0.1 the green lights come on for 150 s +0.1. No READY position in the 150 s series."}
-                     :{ar:`قبل المجموعة يخفض اللاعب ذراعه إلى وضع الاستعداد (45° كحد أقصى). بعد ATTENTION يُضاء الأحمر 7 ثوانٍ ±0.1 ثم الأخضر ${T} ${T===10?"ثوانٍ":"ثانية"} +0.1 لإطلاق 5 طلقات. لا يُرفع المسدس قبل الأخضر.`,en:`Before the series the athlete lowers his arm to the READY position (45° at most). After ATTENTION, red 7 s ±0.1, then green ${T} s +0.1 to fire 5 shots. The pistol may not be raised before the green light.`},
+        desc:T===150?{ar:"يعلن ضابط الميدان زمن المجموعة، ثم LOAD، وبعد دقيقة ATTENTION: يُضاء الضوء الأحمر لمدة 7 ثوانٍ ±0.1 (تبدأ المجموعة)، ثم يُضاء الضوء الأخضر لمدة 150 ثانية +0.1. لا يُطلب وضع الاستعداد في مجموعات 150 ثانية.",en:"The Range Officer calls the series time, then LOAD; after one minute ATTENTION: the red lights come on (the series starts), and after 7 s ±0.1 the green lights come on for 150 s +0.1. No READY position in the 150 s series."}
+                     :{ar:`قبل المجموعة يخفض اللاعب ذراعه إلى وضع الاستعداد (45° كحد أقصى). بعد ATTENTION يُضاء الضوء الأحمر لمدة 7 ثوانٍ ±0.1 ثم يُضاء الضوء الأخضر لمدة ${T} ${T===10?"ثوانٍ":"ثانية"} +0.1 لإطلاق 5 طلقات. لا يُرفع المسدس قبل الضوء الأخضر.`,en:`Before the series the athlete lowers his arm to the READY position (45° at most). After ATTENTION, red 7 s ±0.1, then green ${T} s +0.1 to fire 5 shots. The pistol may not be raised before the green light.`},
         ref:T===150?"8.7.6.5 b–g · 8.7.6.2 a":"8.7.6.5 b–g · 8.7.2",pos:pm(()=>"fp"),fire:{shooters:sh,vals,kind:"series",st,dur:T,base:kOf(st,i,0)},stages:stg,cmds:cmdsFrom(stg)});
       const recalc=p=>{ A[p].last=[0,1,2,3,4].map(j=>A[p].shots[kOf(st,i,j)]??null); A[p].lastSum=serSum(p,st,i); };
       const low5=arr=>arr.slice().sort((u,v)=>u-v).slice(0,5);
@@ -581,7 +594,7 @@ function simulate(plan,names,quick){
         irrNotes.push({ar:`6 إصابات (${p})`,en:`6 hits (${p})`});
         irrStep(ph,p,"#E5A23A",{ar:`6 إصابات على الهدف (${p})`,en:`Six hits on the target (${p})`},{ar:`ظهرت 6 إصابات على هدف {${p}} في المجموعة ${i}. تُستبعد الإصابة الأعلى قيمة (${f1(hiV)}) من نتيجة الهدف، ويُخصم نقطتان (2) من نتيجة المجموعة عن الطلقة الزائدة، إضافة إلى عقوبة التعمير الزائد إن وُجدت.`,en:`Six hits appear on {${p}}'s target in series ${i}. The highest value hit (${f1(hiV)}) is disregarded and 2 points are deducted from the series for the extra shot, in addition to any overloading penalty.`},"8.8.2.1 a, b"); recalc(p); });
       late.forEach(x=>{ const p=x.p; const k=kOf(st,i,4); const was=A[p].shots[k]; A[p].shots[k]=0; A[p].x[k]=false; irrNotes.push({ar:`طلقة بعد الزمن (${p})`,en:`shot after time (${p})`});
-        irrStep(ph,p,"#E5A23A",{ar:`طلقة بعد انتهاء زمن المجموعة (${p})`,en:`Shot after the series time (${p})`},{ar:`أطلق {${p}} طلقته الخامسة بعد إضاءة الأحمر (إشارة STOP) في مجموعة 150 ثانية رقم ${i}. حسب ملخص عقوبات الدليل (8.8.2.3 b) تُحتسب صفراً (كانت ${f1(was)}). إذا تعذر التعرف على الطلقة تُخصم الإصابة الأعلى قيمة وتُسجَّل صفراً.`,en:`{${p}} fires his fifth shot after the red light (the STOP signal) in 150 s series ${i}. Per the manual's penalty summary (8.8.2.3 b) it is scored as a miss (it was a ${f1(was)}). If the shot cannot be identified, the highest value hit is deducted and scored as a miss.`},"8.8.2.3 b"); recalc(p); });
+        irrStep(ph,p,"#E5A23A",{ar:`طلقة بعد انتهاء زمن المجموعة (${p})`,en:`Shot after the series time (${p})`},{ar:`أطلق {${p}} طلقته الخامسة بعد إضاءة الضوء الأحمر (إشارة STOP) في مجموعة 150 ثانية رقم ${i}. حسب ملخص عقوبات الدليل (8.8.2.3 b) تُحتسب صفراً (كانت ${f1(was)}). إذا تعذر التعرف على الطلقة تُخصم الإصابة الأعلى قيمة وتُسجَّل صفراً.`,en:`{${p}} fires his fifth shot after the red light (the STOP signal) in 150 s series ${i}. Per the manual's penalty summary (8.8.2.3 b) it is scored as a miss (it was a ${f1(was)}). If the shot cannot be identified, the highest value hit is deducted and scored as a miss.`},"8.8.2.3 b"); recalc(p); });
       rd.forEach(x=>{ const p=x.p, a=A[p]; a.ready++; const n=a.ready;
         if(n>=3){ a.status="dsq"; irrStep(ph,p,"#D93B36",{ar:`وضع الاستعداد للمرة الثالثة: استبعاد (${p})`,en:`Third READY violation: disqualification (${p})`},{ar:`مخالفة ثالثة من {${p}}: الاستبعاد.`,en:`A third violation by {${p}}: disqualification.`},"8.7.4 d"); return; }
         const orig=[0,1,2,3,4].map(j=>a.shots[kOf(st,i,j)]), rep=plan.rep[p][n].map(score); const low=low5(orig.concat(rep));
@@ -589,15 +602,15 @@ function simulate(plan,names,quick){
         if(n===2) a.sp[ser]=(a.sp[ser]||0)-20;
         irrNotes.push({ar:`وضع الاستعداد ${n} (${p})`,en:`READY violation ${n} (${p})`});
         irrStep(ph,p,n===1?"#F2C230":"#2FB463",{ar:n===1?`وضع الاستعداد: إنذار وإعادة المجموعة (${p})`:`وضع الاستعداد مرة ثانية في مرحلتي 20 و10 ث: خصم نقطتين (${p})`,en:n===1?`READY position: warning and repeat (${p})`:`READY position again in the combined 20 s + 10 s stages: −2 (${p})`},
-          {ar:`رفع {${p}} ذراعه مبكراً أو فوق 45° قبل إضاءة الأخضر. ${n===1?"ينذره عضو لجنة الحكام، وتُسجَّل المجموعة وتُعاد، وتُحتسب أقل خمس (5) إصابات قيمة من المجموعتين":"تكرر الخطأ في مرحلتي 20 و10 ثوانٍ مجتمعتين: نفس الإجراء مع خصم نقطتين (2). المخالفة الثالثة تعني الاستبعاد"}: الأصلية ${orig.map(f1).join(" ")} · الإعادة ${rep.map(f1).join(" ")} ← ${low.map(f1).join(" ")}.`,en:`{${p}} raises his arm too soon or above 45° before the green light. ${n===1?"A Jury Member warns him; the series is recorded and repeated, and the five (5) lowest value hits of the two series count":"Repeated in the combined 20 s and 10 s stages: the same procedure plus 2 points deducted. A third violation means disqualification"}: original ${orig.map(f1).join(" ")} · repeat ${rep.map(f1).join(" ")} → ${low.map(f1).join(" ")}.`},"8.7.3 · 8.7.4 a–c"); recalc(p); });
+          {ar:`رفع {${p}} ذراعه مبكراً أو فوق 45° قبل إضاءة الضوء الأخضر. ${n===1?"ينذره عضو لجنة الحكام، وتُسجَّل المجموعة وتُعاد، وتُحتسب أقل خمس (5) إصابات قيمة من المجموعتين":"تكرر الخطأ في مرحلتي 20 و10 ثوانٍ مجتمعتين: نفس الإجراء مع خصم نقطتين (2). المخالفة الثالثة تعني الاستبعاد"}: الأصلية ${orig.map(f1).join(" ")} · الإعادة ${rep.map(f1).join(" ")} ← ${low.map(f1).join(" ")}.`,en:`{${p}} raises his arm too soon or above 45° before the green light. ${n===1?"A Jury Member warns him; the series is recorded and repeated, and the five (5) lowest value hits of the two series count":"Repeated in the combined 20 s and 10 s stages: the same procedure plus 2 points deducted. A third violation means disqualification"}: original ${orig.map(f1).join(" ")} · repeat ${rep.map(f1).join(" ")} → ${low.map(f1).join(" ")}.`},"8.7.3 · 8.7.4 a–c"); recalc(p); });
       ear.forEach(x=>{ const p=x.p; const nx=sid(st,i+1); A[p].sp[nx]=(A[p].sp[nx]||0)-20;
         const rep=plan.rep[p][5]; for(let j=0;j<5;j++) setShot(p,kOf(st,i,j),rep[j]);
         irrNotes.push({ar:`طلقة بعد LOAD (${p})`,en:`shot after LOAD (${p})`});
-        irrStep(ph,p,"#E5A23A",{ar:`طلقة بعد LOAD وقبل بدء المجموعة (${p})`,en:`Shot after LOAD, before the series starts (${p})`},{ar:`أطلق {${p}} طلقة بالخطأ بعد LOAD وقبل إضاءة الأحمر. لا تُحتسب، ويُخصم نقطتان (2) من المجموعة التالية. لا يستمر، بل ينتظر انتهاء الآخرين ويبلغ ضابط الميدان كما لو كان عطلاً، ثم يعيد المجموعة في نفس مرحلة الزمن مع المجموعة العادية التالية (${rep.map(r=>f1(score(r))).join(" ")}). لو استمر لاحتُسبت الطلقة صفراً.`,en:`{${p}} accidentally fires after LOAD and before the red light. It does not count and 2 points come off the following series. He must not continue; he waits for the others, reports as for a malfunction, and repeats the series in the same time stage with the following regular series (${rep.map(r=>f1(score(r))).join(" ")}). Had he continued, the shot would be a miss.`},"8.8.2.3 a"); recalc(p); });
+        irrStep(ph,p,"#E5A23A",{ar:`طلقة بعد LOAD وقبل بدء المجموعة (${p})`,en:`Shot after LOAD, before the series starts (${p})`},{ar:`أطلق {${p}} طلقة بالخطأ بعد LOAD وقبل إضاءة الضوء الأحمر. لا تُحتسب، ويُخصم نقطتان (2) من المجموعة التالية. لا يستمر، بل ينتظر انتهاء الآخرين ويبلغ ضابط الميدان كما لو كان عطلاً، ثم يعيد المجموعة في نفس مرحلة الزمن مع المجموعة العادية التالية (${rep.map(r=>f1(score(r))).join(" ")}). لو استمر لاحتُسبت الطلقة صفراً.`,en:`{${p}} accidentally fires after LOAD and before the red light. It does not count and 2 points come off the following series. He must not continue; he waits for the others, reports as for a malfunction, and repeats the series in the same time stage with the following regular series (${rep.map(r=>f1(score(r))).join(" ")}). Had he continued, the shot would be a miss.`},"8.8.2.3 a"); recalc(p); });
       cm.forEach(x=>{ A[x.p].sp[ser]=(A[x.p].sp[ser]||0)-20; irrNotes.push({ar:`ادعاء أمر غير صحيح (${x.p})`,en:`incorrect command claim (${x.p})`});
         irrStep(ph,x.p,"#7A63E0",{ar:`ادعاء أمر ميدان غير صحيح: مرفوض (${x.p})`,en:`Incorrect range command claim: not justified (${x.p})`},{ar:`لم يكن {${x.p}} جاهزاً عند إشارة الرمي وادعى أن أمر ضابط الميدان غير صحيح، فأمسك مسدسه نحو الميدان ورفع يده الحرة وأبلغ فور انتهاء المجموعة. الادعاء غير مبرر: يجوز له رمي المجموعة مع خصم نقطتين (2) منها. لو كان مبرراً لرمى المجموعة دون عقوبة، ولو أطلق طلقة بعد الأمر لا يُقبل الاحتجاج.`,en:`{${x.p}} was not ready at the signal and claims an incorrect Range Officer command; he held the pistol downrange, raised his free hand and reported right after the series. Not justified: he may fire the series with 2 points deducted from it. If justified he fires it without penalty; if he fired a shot after the command, the protest is not accepted.`},"8.8.3"); recalc(x.p); });
       tm.forEach(x=>{ A[x.p].sp[ser]=(A[x.p].sp[ser]||0)-20; irrNotes.push({ar:`ادعاء مخالفة زمنية (${x.p})`,en:`timing claim (${x.p})`});
-        irrStep(ph,x.p,"#7A63E0",{ar:`ادعاء مخالفة زمنية: مرفوض (${x.p})`,en:`Timing irregularity claim: not justified (${x.p})`},{ar:`اعتبر {${x.p}} أن الوقت بين الأمر والأخضر غير صحيح، فأمسك مسدسه نحو الميدان ورفع يده الحرة دون إزعاج الآخرين. الادعاء غير مبرر: يجوز له رمي المجموعة مع خصم نقطتين (2). بعد إطلاق الطلقة الأولى لا يُقبل هذا الادعاء. (ادعاء أن زمن المجموعة قصير يكون فور انتهائها؛ إذا ثبت الخطأ تُلغى المجموعة وتُعاد، وإلا تُحتسب كما هي.)`,en:`{${x.p}} considers the time from the command to the green light wrong; he holds the pistol downrange and raises his free hand without disturbing others. Not justified: he may fire the series with a 2-point deduction. After the first shot such a claim is not accepted. (A claim that the series was too short is made right after it; if an error is confirmed the series is annulled and repeated, otherwise it stands.)`},"8.8.5.1 · 8.8.5.2"); recalc(x.p); });
+        irrStep(ph,x.p,"#7A63E0",{ar:`ادعاء مخالفة زمنية: مرفوض (${x.p})`,en:`Timing irregularity claim: not justified (${x.p})`},{ar:`اعتبر {${x.p}} أن الوقت بين الأمر وإضاءة الضوء الأخضر غير صحيح، فأمسك مسدسه نحو الميدان ورفع يده الحرة دون إزعاج الآخرين. الادعاء غير مبرر: يجوز له رمي المجموعة مع خصم نقطتين (2). بعد إطلاق الطلقة الأولى لا يُقبل هذا الادعاء. (ادعاء أن زمن المجموعة قصير يكون فور انتهائها؛ إذا ثبت الخطأ تُلغى المجموعة وتُعاد، وإلا تُحتسب كما هي.)`,en:`{${x.p}} considers the time from the command to the green light wrong; he holds the pistol downrange and raises his free hand without disturbing others. Not justified: he may fire the series with a 2-point deduction. After the first shot such a claim is not accepted. (A claim that the series was too short is made right after it; if an error is confirmed the series is annulled and repeated, otherwise it stands.)`},"8.8.5.1 · 8.8.5.2"); recalc(x.p); });
       am.forEach(x=>{ const p=x.p, fired=x.j; const line1=[0,1,2,3,4].filter(j=>j<fired).map(j=>A[p].shots[kOf(st,i,j)]); const line2=plan.rep[p][7].map(score); const fin=low5(line1.concat(line2));
         irrNotes.push({ar:`عطل مسموح به (${p})`,en:`ALLOWABLE malfunction (${p})`});
         irrStep(ph,p,"#E5A23A",{ar:`عطل مسموح به (AM) في المجموعة ${i} (${p})`,en:`ALLOWABLE malfunction (AM) in series ${i} (${p})`},{ar:`توقف مسدس {${p}} بعد ${fired} طلقات (خرطوشة لم تنطلق في بيت النار والزناد أُطلق). أمسك المسدس نحو الميدان وحافظ على قبضته ورفع يده الحرة دون محاولة الإصلاح. فحص ضابط الميدان المسدس وقرر أن العطل مسموح به. تُسجَّل الطلقات المُطلقة في السطر الأول من نموذج STDP: ${line1.map(f1).join(" ")}. يُسمح بعطلين فقط في مباراة الـ 60 طلقة.`,en:`{${p}}'s pistol stops after ${fired} shots (undischarged cartridge in the chamber, trigger released). He holds it downrange, keeps his grip and raises his free hand without trying to fix it. The Range Officer inspects and rules it ALLOWABLE. The shots fired go on line 1 of Form STDP: ${line1.map(f1).join(" ")}. Only two malfunctions are allowed in the 60-shot match.`},"8.9.3 · 8.9.4.1 c · 8.9.1 b");
@@ -613,7 +626,7 @@ function simulate(plan,names,quick){
       intr.forEach(()=>{ irrNotes.push({ar:"انقطاع أكثر من 15 دقيقة",en:"interruption over 15 minutes"});
         const rep={}; sh.forEach(p=>{ if(A[p].status==="dsq") return; const v=plan.rep[p][8].map(score); for(let j=0;j<5;j++) setShot(p,kOf(st,i,j),plan.rep[p][8][j]); rep[p]=v; });
         irrStep(ph,"","#3E8FD8",{ar:"انقطاع أكثر من 15 دقيقة لأسباب فنية",en:"Interruption over 15 minutes for technical reasons"},{ar:`تعطل نظام الأهداف في المجموعة ${i} بعد طلقتين وتوقف الرمي 18 دقيقة دون خطأ من اللاعبين. في المسدس الموحد تُلغى المجموعة المقطوعة وتُعاد، وتُسجَّل المجموعة المعادة وتُحتسب. ولأن الانقطاع أكثر من 15 دقيقة تسمح اللجنة بمجموعة اختبار إضافية من 5 طلقات. (إذا سُجلت الطلقات الخمس للاعب فلا يعيد.)`,en:`The target system fails in series ${i} after two shots and firing stops for 18 minutes through no fault of the athletes. In Standard Pistol the interrupted series is annulled and repeated, and the repeat is recorded and credited. Because the interruption exceeded 15 minutes the Jury allows one extra 5-shot sighting series. (An athlete whose five shots were recorded does not repeat.)`},"8.8.1 a, b · 8.10.1 e");
-        const stg2=[{lbl:{ar:"مجموعة اختبار إضافية",en:"Extra sighting series"},secs:3,say:SNAME[150]},{lbl:{ar:"التعمير",en:"Load"},secs:2,say:"LOAD"},{lbl:{ar:"دقيقة",en:"One minute"},secs:60,say:"ATTENTION"},{lbl:{ar:"أحمر 7 ث",en:"Red 7 s"},secs:7,light:"red",say:null},{lbl:{ar:"أخضر 150 ث",en:"Green 150 s"},secs:150.1,light:"green",say:null},{lbl:{ar:"بعد الاختبار",en:"After sighting"},secs:3,say:"UNLOAD"},...seriesStages(T,true)];
+        const stg2=[{lbl:{ar:"مجموعة اختبار إضافية",en:"Extra sighting series"},secs:3,say:SNAME[150]},{lbl:{ar:"التعمير",en:"Load"},secs:2,say:"LOAD"},{lbl:{ar:"دقيقة",en:"One minute"},secs:60,say:"ATTENTION"},{lbl:{ar:"الضوء الأحمر لمدة 7 ثوانٍ",en:"Red 7 s"},secs:7,light:"red",say:null},{lbl:{ar:"الضوء الأخضر لمدة 150 ثانية",en:"Green 150 s"},secs:150.1,light:"green",say:null},{lbl:{ar:"بعد الاختبار",en:"After sighting"},secs:3,say:"UNLOAD"},...seriesStages(T,true)];
         push({ph,tag:{ar:"إعادة بعد الانقطاع",en:"Repeat after interruption"},title:{ar:`اختبار إضافي وإعادة المجموعة ${i}`,en:`Extra sighting and series ${i} repeat`},
           desc:{ar:`بعد إصلاح الأهداف: مجموعة اختبار إضافية من 5 طلقات في 150 ثانية، ثم توقف دقيقة، ثم يعيد جميع اللاعبين المجموعة ${i} كاملة (${T} ثوانٍ).`,en:`After the targets are repaired: one extra 5-shot sighting series in 150 s, a one-minute pause, then all athletes repeat series ${i} in full (${T} s).`},
           ref:"8.8.1 · 8.10.1 c, e",pos:pm(()=>"fp"),fire:{shooters:Object.keys(rep),vals:rep,kind:"series",st,dur:T,base:kOf(st,i,0)+700},stages:stg2,cmds:cmdsFrom(stg2)});
@@ -817,7 +830,7 @@ function render(animate){
   $("steptag").textContent=L(st.tag); $("steptitle").textContent=L(st.title);
   $("cmdcap").textContent=tt.cmdcap;
   const cl=$("cmdlist"); cl.innerHTML="";
-  if(st.cmds&&st.cmds.length) st.cmds.forEach(c=>{const d=document.createElement("div");d.className="cmdrow";d.innerHTML=`<span class="c">${esc(c.c)}</span><span class="at">${esc(c.at)}</span>`;cl.appendChild(d);});
+  if(st.cmds&&st.cmds.length) st.cmds.forEach(c=>{const d=document.createElement("div");d.className="cmdrow";d.innerHTML=`<span class="c">${esc(c.c)}</span><span class="at">${esc(L(c.at))}</span>`;cl.appendChild(d);});
   else cl.innerHTML=`<div class="cmdrow"><span class="c" style="font-family:var(--f-body);font-weight:500;opacity:.85">${esc(tt.nocmd)}</span></div>`;
   const ab=$("annbox"); ab.hidden=!st.ann; if(st.ann){ $("anncap").textContent=tt.anncap; $("anntext").textContent=st.ann; }
   $("stepdesc").innerHTML=chipify(L(st.desc)); $("stepref").textContent="ISSF "+st.ref;
@@ -828,7 +841,7 @@ function render(animate){
   [1,2,4,8,16].forEach(v=>$("sp"+v).setAttribute("aria-pressed",SPEED===v));
   fillSelect($("vmode"),tt.vmode); fillSelect($("vrate"),tt.vrate); fillSelect($("scen"),tt.scen,SCEN);
   $("bvoice").textContent=VOICE_ON?tt.voiceOff:tt.voiceOn; fillVoices();
-  $("bstart").textContent=tt.fromStart; $("kbdhint").innerHTML=tt.kbd; $("sndbtn").textContent=SOUND?tt.snd1:tt.snd0; $("sndbtn").setAttribute("aria-pressed",SOUND); $("bvoice").disabled=!synth; $("tbeep").disabled=!SOUND; $("clisten").disabled=!synth; $("fsbtn").textContent=document.fullscreenElement?tt.fsx:tt.fs;
+  $("bstart").textContent=tt.fromStart; $("kbdhint").innerHTML=tt.kbd; { const av=$("aivoice"); av.hidden=lang!=="ar"; av.innerHTML=lang==="ar"?"تمت ترجمة الصوت بالذكاء الاصطناعي.<br>ولهذا هناك أخطاء في نطق بعض الكلمات باللغة العربية.":""; } $("sndbtn").textContent=SOUND?tt.snd1:tt.snd0; $("sndbtn").setAttribute("aria-pressed",SOUND); $("bvoice").disabled=!synth; $("tbeep").disabled=!SOUND; $("clisten").disabled=!synth; $("fsbtn").textContent=document.fullscreenElement?tt.fsx:tt.fs;
   const PL={1:{ar:"الذهبية",en:"gold"},2:{ar:"الفضية",en:"silver"},3:{ar:"البرونزية",en:"bronze"}};
   $("scennote").textContent=(((!EVENTS.length&&!IRRN.length)?tt.scenNote.none:(EVENTS.length?tt.scenNote.tie:""))+(IRRN.length?" "+tt.scenNote.irr+IRRN.map(L).join(lang==="ar"?"، ":", ")+".":"")).trim();
   $("tautol").textContent=tt.auto; $("tbeepl").textContent=tt.beep; $("tnext").textContent=tt.nextStage; $("tclose").textContent=tt.close;
@@ -983,23 +996,49 @@ let SOUND=false; try{ if(localStorage.getItem(KEY+"-sound")==="1") SOUND=true; }
 const synth=("speechSynthesis" in window)?window.speechSynthesis:null;
 function voicesNow(){ try{ const v=synth?synth.getVoices():[]; if(v&&v.length) VOICES=v; }catch(e){} return VOICES; }
 function loadVoices(){ voicesNow(); fillVoices(); }
-let VOICE_PREF=null; try{ VOICE_PREF=localStorage.getItem(KEY+"-voice"); }catch(e){}
+let VOICE_PREF=null, VOICE_PREF_AR=null; try{ VOICE_PREF=localStorage.getItem(KEY+"-voice"); VOICE_PREF_AR=localStorage.getItem(KEY+"-voicear"); }catch(e){}
+/* novelty / effect voices of Apple devices are not offered as narrators */
+const FX=/^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Good News|Jester|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Deranged|Hysterical|Pipe Organ)\b/i;
 const isEn=v=>(v.lang||"").toLowerCase().startsWith("en"), isAr=v=>(v.lang||"").toLowerCase().startsWith("ar");
 function defaultEn(){ const en=VOICES.filter(isEn);
   return en.find(v=>v.name==="Daniel"&&/en-GB/i.test(v.lang)) || en.find(v=>/^daniel\b/i.test(v.name)) || en.find(v=>/en-GB/i.test(v.lang)&&v.localService) || en.find(v=>/en-GB/i.test(v.lang)) || en.find(v=>v.localService) || en[0] || null; }
 function defaultAr(){ const ar=VOICES.filter(isAr); return ar.find(v=>v.localService)||ar[0]||null; }
-function fillVoices(){ const sel=$("vvoice"); const en=VOICES.filter(isEn);
+function fillVoices(){ const tt=t(); if($("vvoicel")) $("vvoicel").textContent=tt.vEnL; if($("vvoicearl")) $("vvoicearl").textContent=tt.vArL;
+  { const sa=$("vvoicear"); const ar=VOICES.filter(v=>isAr(v)&&!FX.test(v.name)); const da=defaultAr(); const ka=VOICE_PREF_AR||sa.value;
+    sa.innerHTML=ar.length?ar.map(v=>`<option value="${esc(v.name)}">${esc(v.name)} (${esc(v.lang)})${da&&v.name===da.name?" ★":""}</option>`).join(""):`<option value="">${esc(tt.novoice)}</option>`;
+    sa.value=ar.some(v=>v.name===ka)?ka:(da?da.name:""); }
+  const sel=$("vvoice"); const en=VOICES.filter(v=>isEn(v)&&!FX.test(v.name));
   const keep=VOICE_PREF||sel.value; const d=defaultEn();
   sel.innerHTML=en.length?en.map(v=>`<option value="${esc(v.name)}">${esc(v.name)} (${esc(v.lang)})${d&&v.name===d.name?" ★":""}</option>`).join(""):`<option value="">${esc(t().novoice)}</option>`;
   sel.value=en.some(v=>v.name===keep)?keep:(d?d.name:""); }
 if(synth){ loadVoices(); try{ synth.addEventListener?synth.addEventListener("voiceschanged",loadVoices):(synth.onvoiceschanged=loadVoices); }catch(e){}
   let tries=0; const poll=setInterval(()=>{ const had=VOICES.length; voicesNow(); if(VOICES.length!==had) fillVoices(); if(VOICES.length||++tries>60) clearInterval(poll); },250); }
-function pickVoice(arabic){ voicesNow(); if(arabic) return defaultAr(); const want=$("vvoice").value; return VOICES.find(x=>x.name===want&&isEn(x)) || defaultEn(); }
+function pickVoice(arabic){ voicesNow(); if(arabic){ const wa=$("vvoicear").value; return VOICES.find(x=>x.name===wa&&isAr(x)) || defaultAr(); } const want=$("vvoice").value; return VOICES.find(x=>x.name===want&&isEn(x)) || defaultEn(); }
+/* ---- Arabic pronunciation: vocalised forms of the shooting terms the device voice tends to misread ---- */
+const SAY_AR=[["لجنة الحكام","لَجْنَةُ الحُكَّام"],["ضباط الميدان","ضُبَّاطِ المَيْدَان"],["رئيس ضباط الميدان","رَئِيسُ ضُبَّاطِ المَيْدَان"],["ضابط الميدان","ضَابِطُ المَيْدَان"],
+ ["الشحنة الدافعة","الشُّحْنَةَ الدَّافِعَة"],["الإعداد والاختبار","الإِعْدَادِ وَالاِخْتِبَار"],["الدائرة الكاملة","الدَّائِرَةِ الكَامِلَة"],["الكسور العشرية","الكُسُورِ العَشْرِيَّة"],["العشرات الداخلية","العَشَرَاتِ الدَّاخِلِيَّة"],
+ ["رشتين","رَشَّتَيْن"],["رشتان","رَشَّتَان"],["رشة","رَشَّة"],["المرتكز","المُرْتَكِز"],["مرتكز","مُرْتَكِز"],["الراقد","الرَّاقِد"],["راقد","رَاقِد"],["الواقف","الوَاقِف"],
+ ["طلقتين","طَلْقَتَيْن"],["طلقتان","طَلْقَتَان"],["طلقات","طَلَقَات"],["طلقة","طَلْقَة"],["طلقته","طَلْقَتَه"],["الحكام","الحُكَّام"],["ضباط","ضُبَّاط"],["الاختبار","الاِخْتِبَار"],["الإعداد","الإِعْدَاد"],
+ ["تُحتسب","تُحْتَسَب"],["تحتسب","تُحْتَسَب"],["تُسجَّل","تُسَجَّل"],["صفراً","صِفْرًا"],["صفرا","صِفْرًا"],["أصفاراً","أَصْفَارًا"],["صفر","صِفْر"],["مخالفة","مُخَالَفَة"],["المخالفة","المُخَالَفَة"],["خصم","خَصْم"],["يُخصم","يُخْصَم"],
+ ["نقطتان","نُقْطَتَان"],["نقطتين","نُقْطَتَيْن"],["القطار","القِطَار"],["قطار","قِطَار"],["القطارات","القِطَارَات"],["الهدف","الهَدَف"],["هدف","هَدَف"],["أهداف","أَهْدَاف"],["الأهداف","الأَهْدَاف"],
+ ["النداء","النِّدَاء"],["الخط","الخَطّ"],["النهائي","النِّهَائِي"],["النهائيات","النِّهَائِيَّات"],["سيدة","سَيِّدَة"],["لاعبة","لاعِبَة"],["رجل","رَجُل"],["عطل","عُطْل"],["مسدس","مُسَدَّس"],["المسدس","المُسَدَّس"],
+ ["بندقية","بُنْدُقِيَّة"],["البندقية","البُنْدُقِيَّة"],["المجموعة","المَجْمُوعَة"],["مجموعة","مَجْمُوعَة"],["التأهيل","التَّأْهِيل"],["التعادل","التَّعَادُل"],["يُفض","يُفَضّ"],["الذخيرة","الذَّخِيرَة"],
+ ["أعلام الأمان","أَعْلَامِ الأَمَان"],["الرمي الجاف","الرَّمْيِ الجَافّ"],["تمارين الحمل والتصويب","تَمَارِينِ الحَمْلِ وَالتَّصْوِيب"],["خط الرمي","خَطِّ الرَّمْي"],["المسدسات","المُسَدَّسَات"],["مسدسات","مُسَدَّسَات"],["مرئية","مَرْئِيَّة"],["ومواجهة","وَمُوَاجِهَة"],["مواجهة","مُوَاجِهَة"],["وتناول","وَتَنَاوُل"],["تناول","تَنَاوُل"],["إزالة","إِزَالَة"],["يجوز","يَجُوز"],["للاعبين","لِلَّاعِبِين"],["اللاعبين","اللَّاعِبِين"],["الأهداف","الأَهْدَاف"],["وقت الإعداد","وَقْتُ الإِعْدَاد"],["بالأمر","بِالأَمْر"],["يبدأ","يَبْدَأ"],["وتكون","وَتَكُون"],
+ ["يضاء","يُضَاء"],["الضوء","الضَّوْء"],["تخفض","تَخْفِض"],["ذراعها","ذِرَاعَهَا"],["ذراعه","ذِرَاعَه"],["وضع الاستعداد","وَضْعِ الاِسْتِعْدَاد"],["يُسند","يُسْنَد"],["يسند","يُسْنَد"],["الطاولة","الطَّاوِلَة"],["اللاعبة","اللَّاعِبَة"],["اللاعبات","اللَّاعِبَات"],["كحد أقصى","كَحَدٍّ أَقْصَى"],["ظهور","ظُهُور"],["الخزنة","الخَزْنَة"],["خزنة","خَزْنَة"],
+ ["10م","عَشَرَةِ أَمْتَار"],["50م","خَمْسِينَ مِتْرًا"],["م1","المَجْمُوعَةُ الأُولَى"]];
+const AL="\\u0600-\\u06FF";
+const SAY_RE=SAY_AR.sort((a,b)=>b[0].length-a[0].length).map(([w,v])=>[new RegExp("(^|[^"+AL+"])([وفب]?)"+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?=$|[^"+AL+"])","g"),v]);
+function sayAr(t){ let o=" "+t+" "; o=o.replace(/(\d+)\s?°/g,"$1 درجة"); o=o.replace(/±\s?0\.1/g," زائد أو ناقص عُشر ثانية ").replace(/\+\s?0\.1/g," زائد عُشر ثانية ").replace(/3\.1\s?(ثانية|ث)(?![\u0600-\u06FF])/g,"ثلاث ثوانٍ وعُشر").replace(/(\d+)\s?ث(?![\u0600-\u06FF])/g,"$1 ثانية"); SAY_RE.forEach(([re,v])=>{ o=o.replace(re,(m,a,b)=>a+b+v); }); return o.trim(); }
+/* an Arabic sentence with English commands inside is read in pieces: Arabic by the Arabic voice, English by the English voice */
+function sayPieces(pt){ if(!/[؀-ۿ]/.test(pt)) return [{t:pt,ar:false}];
+  const out=[]; const re=/[A-Za-z][A-Za-z0-9'’\-]*(?:[ .…·]+[A-Za-z0-9][A-Za-z0-9'’\-]*)*/g; let last=0, m;
+  while((m=re.exec(pt))){ const a=pt.slice(last,m.index); if(/[؀-ۿ0-9]/.test(a)) out.push({t:sayAr(a),ar:true}); out.push({t:m[0],ar:false}); last=m.index+m[0].length; }
+  const r=pt.slice(last); if(/[؀-ۿ0-9]/.test(r)) out.push({t:sayAr(r),ar:true}); return out; }
 function speak(text){
   if(!synth||!SOUND||!text) return;
   const parts=String(text).split(/(?<=[.!?؟…])\s+/).map(x=>x.trim()).filter(Boolean);
   const rate=[1,.8,1.2][$("vrate").selectedIndex]||1;
-  const run=()=>{ try{ window.__apU=[]; parts.forEach(pt=>{ const arabic=/[؀-ۿ]/.test(pt); const v=pickVoice(arabic); const u=new SpeechSynthesisUtterance(pt);
+  const run=()=>{ try{ window.__apU=[]; parts.flatMap(sayPieces).forEach(pc=>{ const pt=pc.t, arabic=pc.ar; const v=pickVoice(arabic); const u=new SpeechSynthesisUtterance(pt);
       if(v){u.voice=v;u.lang=v.lang;} else u.lang=arabic?"ar":"en-GB"; u.rate=rate; u.volume=1; window.__apU.push(u); synth.speak(u); }); if(synth.paused&&synth.resume) synth.resume(); }catch(e){} };
   try{ if(synth.speaking||synth.pending){ synth.cancel(); setTimeout(run,80); } else run(); }catch(e){}
 }
@@ -1011,9 +1050,9 @@ if(!synth){ $("bvoice").disabled=true; }
 /* ================= info cards ================= */
 const INFOS=[
  {h:{ar:"البرنامج",en:"Programme"},p:{ar:"60 طلقة في 3 مراحل × 20 طلقة: المرحلة الأولى 4 مجموعات × 5 طلقات في 150 ثانية، الثانية 4 × 5 في 20 ثانية، الثالثة 4 × 5 في 10 ثوانٍ. 3 دقائق إعداد ومجموعة اختبار واحدة (5 طلقات في 150 ثانية) قبل رمي المباراة. رجال، ناشئون، سيدات، ناشئات.",en:"60 shots in 3 stages × 20: stage 1 is 4 series × 5 shots in 150 s, stage 2 is 4 × 5 in 20 s, stage 3 is 4 × 5 in 10 s. 3 minutes preparation and one sighting series (5 shots in 150 s) before MATCH firing. Men, Men Junior, Women, Women Junior."}},
- {h:{ar:"تسلسل المجموعة",en:"Series sequence"},p:{ar:"إعلان زمن المجموعة (أو لوحة مرقمة) · LOAD · دقيقة · ATTENTION · أحمر 7 ثوانٍ ±0.1 (تبدأ المجموعة) · أخضر 150 أو 20 أو 10 ثوانٍ +0.1 · UNLOAD · توقف دقيقة على الأقل قبل LOAD التالي.",en:"Call the series time (or a numbered sign) · LOAD · one minute · ATTENTION · red 7 s ±0.1 (the series starts) · green 150, 20 or 10 s +0.1 · UNLOAD · at least one minute before the next LOAD."}},
+ {h:{ar:"تسلسل المجموعة",en:"Series sequence"},p:{ar:"إعلان زمن المجموعة (أو لوحة مرقمة) · LOAD · دقيقة · ATTENTION · يضاء الضوء الأحمر لمدة 7 ثوانٍ ±0.1 (تبدأ المجموعة) · يضاء الضوء الأخضر لمدة 150 أو 20 أو 10 ثوانٍ +0.1 · UNLOAD · توقف دقيقة على الأقل قبل LOAD التالي.",en:"Call the series time (or a numbered sign) · LOAD · one minute · ATTENTION · red 7 s ±0.1 (the series starts) · green 150, 20 or 10 s +0.1 · UNLOAD · at least one minute before the next LOAD."}},
  {h:{ar:"وضع الاستعداد",en:"READY position"},p:{ar:"قبل كل مجموعة 20 و10 ثوانٍ فقط (ليس في 150 ثانية): الذراع لأسفل بزاوية لا تزيد عن 45°، ولا يُسند المسدس على الطاولة. الأولى: إنذار وإعادة وأقل 5 إصابات من المجموعتين. الثانية في مرحلتي 20 و10 مجتمعتين: + خصم نقطتين. الثالثة: استبعاد.",en:"Before each 20 s and 10 s series only (not 150 s): arm down at no more than 45°, pistol not resting on the bench. 1st: warning, repeat, five lowest hits of the two series. 2nd in the combined 20 s + 10 s stages: + −2. 3rd: DSQ."}},
- {h:{ar:"قبل المباراة",en:"Before the match"},p:{ar:"−13:00 ATHLETES TO THE LINE مع إبقاء أعلام الأمان. فحوصات ضباط الميدان قبل الإعداد. PREPARATION TIME BEGINS NOW: 3 دقائق. الطلقة قبل LOAD: استبعاد. أكثر من 5 طلقات أو أكثر من خزنة: خصم نقطتين من نفس المجموعة.",en:"−13:00 ATHLETES TO THE LINE with safety flags in. Range Officer checks before preparation. PREPARATION TIME BEGINS NOW: 3 minutes. A shot before LOAD: DSQ. More than 5 cartridges or more than one magazine: −2 from that series."}},
+ {h:{ar:"قبل المباراة",en:"Before the match"},p:{ar:"قبل وقت البداية بـ 13 دقيقة: ATHLETES TO THE LINE مع إبقاء أعلام الأمان. فحوصات ضباط الميدان قبل الإعداد. PREPARATION TIME BEGINS NOW: 3 دقائق. الطلقة قبل LOAD: استبعاد. أكثر من 5 طلقات أو أكثر من خزنة: خصم نقطتين من نفس المجموعة.",en:"13 minutes before the start time: ATHLETES TO THE LINE with safety flags in. Range Officer checks before preparation. PREPARATION TIME BEGINS NOW: 3 minutes. A shot before LOAD: DSQ. More than 5 cartridges or more than one magazine: −2 from that series."}},
  {h:{ar:"الأعطال والانقطاع",en:"Malfunctions & interruptions"},p:{ar:"عطلان فقط في مباراة الـ 60 طلقة (مرة في كل جزء إذا أُقيمت على جزأين). العطل المسموح: إعادة المجموعة كاملة، والنتيجة أقل خمس قيم من كل الطلقات المسجلة (نموذج STDP). الانقطاع: تُلغى المجموعة وتُعاد، وأكثر من 15 دقيقة: مجموعة اختبار إضافية.",en:"Only two malfunctions in the 60-shot match (once per part if shot in two parts). Allowable: the full series is repeated, scored as the five lowest values of all recorded shots (Form STDP). Interruption: the series is annulled and repeated; over 15 minutes, an extra sighting series."}},
  {h:{ar:"الدرجات وفض التعادل",en:"Scoring & ties"},p:{ar:"الدائرة الكاملة (أعداد صحيحة) على أهداف إلكترونية. التعادل بالقاعدة 6.15.1: العشرات الداخلية، ثم آخر 10 طلقات رجوعاً، ثم طلقة بطلقة من الأخيرة. بين القطارات راحة 15 دقيقة.",en:"Full ring (integer) on electronic targets. Ties by Rule 6.15.1: inner tens, then the last 10 shots working backward, then shot by shot from the last. 15-minute break between relays."}}
 ];
@@ -1068,12 +1107,12 @@ const CASES=[
   o:[O("لا شيء","Nothing"),O("إعلان زمن المجموعة أو رفع لوحة مرقمة واضحة","Call the series time or show a visible numbered sign"),O("صافرة","A whistle"),O("ATTENTION","ATTENTION")],a:1,
   e:O("قبل LOAD يعلن ضابط الميدان زمن المجموعة (مثل مجموعة 150 ثانية أو 20 ثانية)، أو يُشار إليه بلوحة مرقمة بحجم كافٍ.","Before LOAD the Range Officer must call the series time (such as 150 s or 20 s series), or show it on a numbered sign large enough to see."),r:"8.7.6.5 b"},
  {h:O("بعد ATTENTION","After ATTENTION"),x:O("أعطى ضابط الميدان ATTENTION على أهداف إلكترونية.","ATTENTION is given on electronic targets."),q:O("ماذا يحدث؟","What happens?"),
-  o:[O("الأخضر فوراً","Green immediately"),O("أحمر، وبعد 7 ثوانٍ ±0.1 أخضر","Red, then green after 7 s ±0.1"),O("أحمر 3 ثوانٍ","Red 3 s"),O("صافرة","A horn")],a:1,
-  e:O("يُضاء الأحمر، وبعد 7 ثوانٍ ±0.1 يُضاء الأخضر. تبدأ المجموعة لحظة إضاءة الأحمر.","The red lights come on; after 7 s ±0.1 the green lights come on. The series starts the moment the red light comes on."),r:"8.7.6.5 d, f"},
- {h:O("وضع الاستعداد في 150 ث","READY in the 150 s series"),x:O("لاعب يرفع ذراعه قبل الأخضر في مجموعة 150 ثانية.","An athlete raises his arm before the green light in a 150 s series."),q:O("هل هذه مخالفة لوضع الاستعداد؟","Is this a READY position violation?"),
+  o:[O("يضاء الضوء الأخضر فوراً","Green light at once"),O("يضاء الضوء الأحمر لمدة 7 ثوانٍ ±0.1 ثم يضاء الضوء الأخضر","Red light 7 s ±0.1, then green light"),O("يضاء الضوء الأحمر لمدة 3 ثوانٍ","Red light 3 s"),O("صافرة","A horn")],a:1,
+  e:O("يُضاء الضوء الأحمر لمدة 7 ثوانٍ ±0.1، ثم يُضاء الضوء الأخضر. تبدأ المجموعة لحظة إضاءة الضوء الأحمر.","The red lights come on; after 7 s ±0.1 the green lights come on. The series starts the moment the red light comes on."),r:"8.7.6.5 d, f"},
+ {h:O("وضع الاستعداد في 150 ث","READY in the 150 s series"),x:O("لاعب يرفع ذراعه قبل الضوء الأخضر في مجموعة 150 ثانية.","An athlete raises his arm before the green light in a 150 s series."),q:O("هل هذه مخالفة لوضع الاستعداد؟","Is this a READY position violation?"),
   o:[O("نعم، إنذار","Yes, a warning"),O("لا، وضع الاستعداد مطلوب فقط في مجموعات 20 و10 ثوانٍ","No, READY is only required in the 20 s and 10 s series"),O("خصم نقطتين","−2 points"),O("استبعاد","DSQ")],a:1,
   e:O("قبل كل مجموعة، عدا مجموعات 150 ثانية، يخفض اللاعب ذراعه ويتخذ وضع الاستعداد.","Before each series, except the 150 s series, the athlete lowers his arm to the READY position."),r:"8.7.6.5 e · 8.7.3"},
- {h:O("مخالفة وضع الاستعداد","READY violation"),x:O("رفع لاعب ذراعه فوق 45° قبل الأخضر في مجموعة 20 ثانية للمرة الأولى.","An athlete raises his arm above 45° before the green light in a 20 s series, first time."),q:O("ما الإجراء؟","What is the procedure?"),
+ {h:O("مخالفة وضع الاستعداد","READY violation"),x:O("رفع لاعب ذراعه فوق 45° قبل الضوء الأخضر في مجموعة 20 ثانية للمرة الأولى.","An athlete raises his arm above 45° before the green light in a 20 s series, first time."),q:O("ما الإجراء؟","What is the procedure?"),
   o:[O("خصم نقطتين","−2 points"),O("إنذار، إعادة المجموعة، وتُحتسب أقل 5 إصابات من المجموعتين","Warning, repeat, five lowest hits of the two series"),O("أقل إصابة على كل هدف","Lowest hit on each target"),O("استبعاد","DSQ")],a:1,
   e:O("إنذار من عضو لجنة الحكام وتُسجَّل المجموعة وتُعاد، وتُحتسب أقل خمس إصابات قيمة من المجموعتين (أو ثلاث إذا وُجد عطل).","A Jury Member warns him, the series is recorded and repeated, and the five lowest value hits of the two series count (or three if a malfunction is involved)."),r:"8.7.4 a, b"},
  {h:O("مخالفة ثانية","Second violation"),x:O("مخالفة أولى في مجموعة 20 ثانية وثانية في مجموعة 10 ثوانٍ.","A first violation in a 20 s series and a second in a 10 s series."),q:O("ما الحكم في الثانية؟","What is the ruling on the second?"),
@@ -1139,7 +1178,10 @@ $("seek").oninput=e=>{stopPlay(); $("gate").hidden=true; go(+e.target.value,fals
 [1,2,4,8,16].forEach(v=>{ $("sp"+v).onclick=()=>{SPEED=v; [1,2,4,8,16].forEach(w=>$("sp"+w).setAttribute("aria-pressed",SPEED===w));}; });
 $("scen").onchange=e=>newScenario(+e.target.value);
 $("bstart").onclick=()=>{stopPlay(); closeTrainer(); $("gate").hidden=true; go(0,false);};
-$("vmode").onchange=()=>speakStep(); $("vvoice").onchange=e=>{ VOICE_PREF=e.target.value; try{localStorage.setItem(KEY+"-voice",VOICE_PREF)}catch(x){} speak("START"); }; $("vrate").onchange=()=>speakStep();
+$("vmode").onchange=()=>speakStep(); function sampleVoice(arabic){ const was=SOUND; SOUND=true; speak(arabic?"انتباه. ابدأ.":"ATHLETES TO THE LINE."); SOUND=was; }
+$("vvoice").onchange=e=>{ VOICE_PREF=e.target.value; try{localStorage.setItem(KEY+"-voice",VOICE_PREF)}catch(x){} sampleVoice(false); };
+$("vvoicear").onchange=e=>{ VOICE_PREF_AR=e.target.value; try{localStorage.setItem(KEY+"-voicear",VOICE_PREF_AR)}catch(x){} sampleVoice(true); };
+$("vtesten").onclick=()=>sampleVoice(false); $("vtestar").onclick=()=>sampleVoice(true); $("vrate").onchange=()=>speakStep();
 function applyNames(){ computeNames(); saveNames(); rebuild(true); render(false); }
 function renderNames(){ const tt=t(); const box=$("names"); box.innerHTML="";
   $("usenames").checked=USE_NAMES; $("usenamesl").textContent=tt.usenames; $("namespanel").hidden=!USE_NAMES;

@@ -1,6 +1,6 @@
 /* STDP Qual – offline service worker. Change VERSION after every update of index.html */
 const PREFIX = "stdq-qual-";
-const VERSION = PREFIX + "v2";
+const VERSION = PREFIX + "v3";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./stdq-icon-180.png", "./stdq-icon-192.png", "./stdq-icon-512.png"];
 
 self.addEventListener("install", e => {
